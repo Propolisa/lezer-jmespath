@@ -1,7 +1,7 @@
 {
-  "name": "@lezer/json",
+  "name": "@lezer/jmespath",
   "version": "1.0.2",
-  "description": "lezer-based JSON grammar",
+  "description": "lezer-based JMESPath grammar",
   "main": "dist/index.cjs",
   "type": "module",
   "exports": {
@@ -10,11 +10,10 @@
   },
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "author": "Arun Srinivasan <rulfzid@gmail.com>",
+  "author": "Chris Stanley <31392431+Propolisa@users.noreply.github.com>",
   "license": "MIT",
   "devDependencies": {
     "@lezer/generator": "^1.0.0",
-    "mocha": "^10.2.0",
     "rollup": "^2.52.2",
     "@rollup/plugin-node-resolve": "^9.0.0"
   },
@@ -25,12 +24,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lezer-parser/json.git"
+    "url": "https://github.com/Propolisa/lezer-jmespath.git"
   },
   "scripts": {
-    "build": "lezer-generator src/json.grammar -o src/parser && rollup -c",
-    "build-debug": "lezer-generator src/json.grammar --names -o src/parser && rollup -c",
-    "prepare": "npm run build",
-    "test": "npm run build && mocha test/test-json.js"
+    "build": "lezer-generator src/jmespath.grammar -o src/parser && rollup -c",
+    "build-debug": "lezer-generator src/jmespath.grammar --names -o src/parser && rollup -c",
+    "prepare": "npm run build"
   }
 }

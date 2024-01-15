@@ -1,0 +1,142 @@
+@precedence {  SubExpr @left, Comparator @left FunctionCall @left, Pipe @left, Or @left And @left UnaryNot @left}
+
+@top Query {
+  Expression
+}
+
+Expression {
+  SubExpression |
+  IndexExpression |
+  ComparatorExpression |
+  OrExpression |
+  Identifier |
+  AndExpression |
+  NotExpression |
+  ParenExpression |
+  Wildcard ~ambig |
+  MultiSelectList |
+  MultiSelectHash |
+  Literal |
+  FunctionExpression |
+  PipeExpression |
+  RawString |
+  CurrentNode
+}
+
+SubExpression { Expression !SubExpr Delimiter ( Identifier | MultiSelectList | MultiSelectHash | FunctionExpression | "*" ) }
+PipeExpression { Expression !Pipe Pipe Expression }
+OrExpression { Expression !Or Or Expression }
+AndExpression { Expression !And And Expression }
+NotExpression { !UnaryNot UnaryNot Expression }
+ParenExpression { LParen Expression RParen }
+IndexExpression {
+  BracketSpecifier ~ambig |
+  (Expression BracketSpecifier) ~ambig
+}
+MultiSelectList { LBracket ( Expression ("," Expression)* ) RBracket }
+MultiSelectHash { "{" ( KeyValExpr ("," KeyValExpr)* ) "}" }
+FilterExpression {(LBracket "?" Expression RBracket )}
+KeyValExpr { Identifier Colon Expression }
+BracketSpecifier { (LBracket (Number | Wildcard ~ambig | SliceExpression) RBracket) | LBracket RBracket | FilterExpression}
+ComparatorExpression { Expression  !Comparator Comparator Expression }
+SliceExpression {
+  (Number? Colon Number? (Colon Number?)?) | (Colon Number? (Colon Number?)?)
+}
+Comparator { "<" | "<=" | "==" | ">=" | ">" | "!=" }
+FunctionExpression { UnquotedString !FunctionCall ( NoArgs | OneOrMoreArgs ) }
+NoArgs { LParen RParen }
+OneOrMoreArgs { LParen ( FunctionArg ("," FunctionArg)* ) RParen }
+FunctionArg { Expression | ExpressionType }
+CurrentNode { "@" }
+ExpressionType { LazyEval Expression }
+
+Identifier {
+  UnquotedString | QuotedString // Identifier types
+}
+
+Number { "-"? Digit+ }
+
+
+RawString { "'" RawStringChar* "'" }
+RawStringChar { R1 | R2 | R3 | PreservedEscape | RawStringEscape }
+PreservedEscape { Escape (R1 | R2 | R3) }
+RawStringEscape { Escape ("'" | Escape) }
+
+@tokens {
+  LazyEval {"&"}
+  Colon {":"}
+  Delimiter {"."}
+  @precedence { Pipe, Or }
+  Wildcard { "*" }
+  Pipe { "|"}
+  Or { "||"}
+  And { "&&"}
+  UnaryNot{ "!"}
+  LParen { "("}
+  RParen { ")"}
+  LBracket { "["}
+  RBracket { "]"}
+  
+  R1 { $[\u{20}-\u{26}] }
+  R2 { $[\u{28}-\u{5b}] }
+  R3 { $[\u{5d}-\u{10ffff}] }
+  // Digit definition
+  Digit {
+    @digit
+  }
+  
+  // LiteralExpression matches a JSON value enclosed in backticks
+  Literal {
+    "`" JSONValue "`"
+  }
+
+  // JSONValue matches any sequence of characters except an unescaped backtick.
+  JSONValue {
+    (AnyCharExceptBacktick | EscapedBacktick)*
+  }
+
+  // AnyCharExceptBacktick represents any character except a backtick
+  AnyCharExceptBacktick {
+    ![`]
+  }
+
+  // EscapedBacktick represents an escaped backtick.
+  EscapedBacktick {
+    "\\`"
+  }
+
+  Escape { "\\" }
+@precedence { Escape, EscapedBacktick }
+  // UnquotedString according to JMESPath spec
+  UnquotedString {
+   $[a-zA-Z_] (  $[a-zA-Z0-9_])*
+  }
+
+  // QuotedString supporting a wider range of characters and escape sequences
+  QuotedString {
+    "\"" (QuotedStringChar | CommonEscapeSequence)* "\""
+  }
+
+  // Characters allowed in a quoted string, excluding the double quote and backslash
+  QuotedStringChar {
+    !["\\]
+  }
+
+  // CommonEscapeSequence for quoted strings
+  CommonEscapeSequence {
+    // Standard escape sequences
+    "\\\"" | "\\\\" | "\\n" | "\\r" | "\\t" | "\\'" |
+    // Unicode escape sequence
+    "\\u" HexDigit HexDigit HexDigit HexDigit
+  }
+
+  // Correct definition of HexDigit for Unicode escape sequences
+  HexDigit {
+    $[0-9a-fA-F]
+  }
+}
+
+
+@external propSource jmespathHighlighting from "./highlight"
+
+@detectDelim
