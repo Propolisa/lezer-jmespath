@@ -1,6 +1,6 @@
 {
-  "name": "@lezer/jmespath",
-  "version": "1.0.2",
+  "name": "lezer-jmespath",
+  "version": "1.0.0",
   "description": "lezer-based JMESPath grammar",
   "main": "dist/index.cjs",
   "type": "module",
