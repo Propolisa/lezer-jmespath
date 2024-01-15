@@ -1,7 +1,6 @@
-# @lezer/json
+# @lezer/jmespath
 
-This is a JSON grammar for the [lezer](https://lezer.codemirror.net/) parser system.
+This is a community created JMESPath grammar for the [lezer](https://lezer.codemirror.net/) parser system.
 
 Reference:
-- https://www.json.org/json-en.html
-- https://tools.ietf.org/html/rfc8259 (The latest IETF RFC – contains the latest full spec)
+- [https://jmespath.org/specification.html](https://jmespath.org/specification.html)
